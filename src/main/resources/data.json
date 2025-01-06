@@ -1,0 +1,14 @@
+{
+  "note1": {
+    "branch": "ASD",
+    "nom": "Test1",
+    "id": 0,
+    "note": 5
+  },
+  "note2": {
+    "branch": "ASD",
+    "nom": "Test2",
+    "id": 1,
+    "note": 4.5
+  }
+}
