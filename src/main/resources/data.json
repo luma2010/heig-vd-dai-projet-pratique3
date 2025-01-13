@@ -54,6 +54,12 @@
         "nom" : "Test3",
         "id" : 8,
         "note" : 3.0
+      },
+      "note10" : {
+        "branch" : "MAT3",
+        "nom" : "Test1",
+        "id" : 9,
+        "note" : 6.0
       }
     }
   },

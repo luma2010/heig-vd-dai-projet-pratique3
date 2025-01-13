@@ -6,8 +6,11 @@ import io.javalin.Javalin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Main {
+
+    private static ConcurrentHashMap<String,Boolean> session = new ConcurrentHashMap<>();
 
     public static void main(String[] args) throws IOException {
         Javalin app = Javalin.create().start(5000);
@@ -32,16 +35,21 @@ public class Main {
         app.post("/login", ctx -> {
             String username = ctx.formParam("username");
 
-            if (username != null && !username.isEmpty()) {
-                // Création du cookie
-                ctx.cookie("username", username);
-
-                // Redirection sur la page de note
-                ctx.redirect("/notes");
-            } else {
+            if (username == null || username.isEmpty()) {
                 ctx.result("Le nom d'utilisateur ne peut pas être vide.");
+                return;
+            }else if(!session.isEmpty() && session.get(username)){
+                ctx.result("Vous êtes déja connecter depuis un autre apareil");
+                return;
             }
+            session.put(username,true);
+
+            // Gestion des cookies
+            ctx.cookie("username", username);
+            ctx.redirect("/notes");
+
         });
+
 
         // Page d'affichage de note
         app.get("/notes", ctx -> {
@@ -99,7 +107,9 @@ public class Main {
                 }
 
                 // Affichage du résultat
-                ctx.result(result.toString());
+                ctx.html("<pre>" + result.toString() + "</pre>" +
+                        "<p><a href='/logout'>Logout</a></p>");
+
             } else {
                 // Si l'utilisateur n'existe pas, afficher un message
                 ctx.html("<h1>Utilisateur non trouvé.</h1><p><a href='/login'>Retour à la page de connexion</a></p><p><a href='/'>Retour à la page home</a></p>");
@@ -108,61 +118,69 @@ public class Main {
 
         // Page pour logout
         app.get("/logout", ctx -> {
-            // Suppression du cookie actuel (maxAge à 0 permet de supprimer le cookie)
-            ctx.cookie("username", "", 0);
-            ctx.html("<h1>Vous êtes maintenant déconnecté.</h1><p><a href='/login'>Retour à la page de connexion</a></p>" +
-                    "<p><a href='/'>Retour à la page home</a></p>");
+            String username = ctx.cookie("username");
+
+            if (username == null) {
+                ctx.result("Vous n'êtes pas connecté.");
+                return;
+            }
+
+            // Supprimer le token de l'utilisateur si présent
+            if (session.get(username)) {
+                session.put(username,false);
+                // Suppression des cookies côté client
+                ctx.cookie("username", "", 0);
+
+                ctx.html("<h1>Vous êtes maintenant déconnecté.</h1>" +
+                        "<p><a href='/login'>Retour à la page de connexion</a></p>" +
+                        "<p><a href='/'>Retour à la page home</a></p>");
+            } else {
+                ctx.result("Aucune session trouvée pour cet utilisateur.");
+            }
         });
+
 
         // Page pour ajouter des notes
         app.post("/add-note", ctx -> {
-            // Récupération des paramêtre envoyer en POST
-            String username = ctx.formParam("username");
-            String branch = ctx.formParam("branch");
-            String nom = ctx.formParam("nom");
-            double note = Double.parseDouble(ctx.formParam("note"));
+                String username = ctx.cookie("username");
 
-            // Permet de sauvegarder le cookie username
-            ctx.cookie("username", username);
+                ObjectMapper mapper = new ObjectMapper();
+                if(!session.get(username)){
+                    ctx.result("Veuillez vous connecter avant d'ajouter une note");
+                    return;
+                }
 
-            // Lecture du fichier JSON
-            ObjectMapper mapper = new ObjectMapper();
-            File file = new File("src/main/resources/data.json");
+                // Lecture et ajout de la note dans data.json (inchangé)
+                File file = new File("src/main/resources/data.json");
+                if (!file.exists()) {
+                    ctx.result("Le fichier data.json est introuvable !");
+                    return;
+                }
 
-            if (!file.exists()) {
-                ctx.result("Le fichier data.json est introuvable !");
-                return;
-            }
-            InputStream inputStream = new FileInputStream(file);
-            JsonNode rootNode = mapper.readTree(inputStream);
-            JsonNode userNode = rootNode.get(username);
+                InputStream inputStream = new FileInputStream(file);
+                JsonNode rootNode = mapper.readTree(inputStream);
+                JsonNode userNode = rootNode.get(username);
 
-            // Vérifie si l'utilisateur a pu être trouver
-            if (userNode == null) {
-                // Si l'utilisateur n'existe pas -> ajout de l'utilisateur dans le JSON (utilisation de cast en ObjectNode)
-                ((ObjectNode) rootNode).set(username, mapper.createObjectNode().put("notes", mapper.createObjectNode()));
-                userNode = rootNode.get(username);
-            }
+                if (userNode == null) {
+                    ((ObjectNode) rootNode).set(username, mapper.createObjectNode().put("notes", mapper.createObjectNode()));
+                    userNode = rootNode.get(username);
+                }
 
-            // Auto incrémentation de la clef "note"
-            JsonNode notesNode = userNode.get("notes");
-            String noteKey = "note" + (notesNode.size() + 1);
+                JsonNode notesNode = userNode.get("notes");
+                String noteKey = "note" + (notesNode.size() + 1);
+                ObjectNode newNote = mapper.createObjectNode();
+                newNote.put("branch", ctx.formParam("branch"));
+                newNote.put("nom", ctx.formParam("nom"));
+                newNote.put("note", Double.parseDouble(ctx.formParam("note")));
+                ((ObjectNode) notesNode).set(noteKey, newNote);
 
-            // Création de la note à ajouter
-            ObjectNode newNote = mapper.createObjectNode();
-            newNote.put("branch", branch);
-            newNote.put("nom", nom);
-            newNote.put("id", notesNode.size()); // ID de la note (taille de la liste actuelle)
-            newNote.put("note", note);
+                FileOutputStream fos = new FileOutputStream("src/main/resources/data.json");
+                mapper.writerWithDefaultPrettyPrinter().writeValue(fos, rootNode);
 
-            // Ajout de la nouvelle note
-            ((ObjectNode) notesNode).set(noteKey, newNote);
+                ctx.result("Note ajoutée avec succès !");
 
-            // Sauvegarde des nouvelles modifications
-            FileOutputStream fos = new FileOutputStream("src/main/resources/data.json");
-            mapper.writerWithDefaultPrettyPrinter().writeValue(fos, rootNode);
-
-            ctx.result("Note ajoutée avec succès !");
         });
+
     }
+
 }
