@@ -102,7 +102,7 @@ public class Main {
                 ctx.result(result.toString());
             } else {
                 // Si l'utilisateur n'existe pas, afficher un message
-                ctx.result("Utilisateur non trouvé.");
+                ctx.html("<h1>Utilisateur non trouvé.</h1><p><a href='/login'>Retour à la page de connexion</a></p><p><a href='/'>Retour à la page home</a></p>");
             }
         });
 
@@ -110,7 +110,8 @@ public class Main {
         app.get("/logout", ctx -> {
             // Suppression du cookie actuel (maxAge à 0 permet de supprimer le cookie)
             ctx.cookie("username", "", 0);
-            ctx.html("<h1>Vous êtes maintenant déconnecté.</h1><p><a href='/login'>Retour à la page de connexion</a></p>");
+            ctx.html("<h1>Vous êtes maintenant déconnecté.</h1><p><a href='/login'>Retour à la page de connexion</a></p>" +
+                    "<p><a href='/'>Retour à la page home</a></p>");
         });
 
         // Page pour ajouter des notes
