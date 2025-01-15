@@ -13,12 +13,6 @@
         "id" : 1,
         "note" : 4.5
       },
-      "note3" : {
-        "branch" : "PRG1",
-        "nom" : "Test1",
-        "id" : 1,
-        "note" : 4.5
-      },
       "note4" : {
         "branch" : "PRG1",
         "nom" : "Test2",
@@ -60,6 +54,11 @@
         "nom" : "Test1",
         "id" : 9,
         "note" : 6.0
+      },
+      "note_e2b1a3ca-9250-4c9d-88e1-2e997029aad7" : {
+        "branch" : "PRG1",
+        "nom" : "Test6",
+        "note" : 5.0
       }
     }
   },
