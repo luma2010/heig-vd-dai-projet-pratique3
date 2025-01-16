@@ -240,6 +240,78 @@ public class Main {
 
             ctx.result("Note supprimée avec succès !");
         });
+
+        // Page pour mettre à jour une note
+        app.post("/update-note", ctx -> {
+            String username = ctx.cookie("username");
+
+            ObjectMapper mapper = new ObjectMapper();
+            if (username == null || !session.get(username)) {
+                ctx.result("Veuillez vous connecter avant de modifier une note.");
+                return;
+            }
+
+            String branch = ctx.formParam("branch");
+            String noteName = ctx.formParam("nom");
+            double newNoteValue;
+
+            try {
+                newNoteValue = Double.parseDouble(ctx.formParam("note"));
+            } catch (NumberFormatException e) {
+                ctx.result("La note doit être un nombre valide.");
+                return;
+            }
+
+            File file = new File("src/main/resources/data.json");
+            if (!file.exists()) {
+                ctx.result("Le fichier data.json est introuvable !");
+                return;
+            }
+
+            InputStream inputStream = new FileInputStream(file);
+            JsonNode rootNode = mapper.readTree(inputStream);
+            JsonNode userNode = rootNode.get(username);
+
+            if (userNode == null) {
+                ctx.result("Utilisateur non trouvé.");
+                return;
+            }
+
+            JsonNode notesNode = userNode.get("notes");
+            if (notesNode == null) {
+                ctx.result("Aucune note trouvée pour cet utilisateur.");
+                return;
+            }
+
+            Iterator<Map.Entry<String, JsonNode>> fields = notesNode.fields();
+            String noteKeyToUpdate = null;
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> noteEntry = fields.next();
+                JsonNode noteNode = noteEntry.getValue();
+                String noteBranch = noteNode.get("branch").asText();
+                String noteNom = noteNode.get("nom").asText();
+
+                if (noteBranch.equals(branch) && noteNom.equals(noteName)) {
+                    noteKeyToUpdate = noteEntry.getKey();
+                    break;
+                }
+            }
+
+            if (noteKeyToUpdate == null) {
+                ctx.result("Note avec la branche \"" + branch + "\" et le nom \"" + noteName + "\" non trouvée.");
+                return;
+            }
+
+            // Mise à jour de la note uniquement
+            ((ObjectNode) notesNode.get(noteKeyToUpdate)).put("note", newNoteValue);
+
+            // Sauvegarde des modifications dans le fichier data.json
+            FileOutputStream fos = new FileOutputStream(file);
+            mapper.writerWithDefaultPrettyPrinter().writeValue(fos, rootNode);
+
+            ctx.result("Note mise à jour avec succès !");
+        });
+
     }
 
 }
