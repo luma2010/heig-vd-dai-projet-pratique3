@@ -31,6 +31,15 @@ public class Main {
                     "</form>");
         });
 
+        // Page erreur 404
+        app.error(404,ctx ->
+                ctx.html("<h1>Erreur 404 : Page non trouvée</h1><p>La page que vous avez demandée n'existe pas.</p><p><a href='/'>Home</a></p>"));
+
+        app.error(403, ctx ->
+                ctx.html("<h1>Erreur 403 : Accès interdit</h1><p>Vous n'avez pas la permission d'accéder à cette page.</p><p><a href='/'>Home</a></p>"));
+
+        app.error(401,ctx ->
+                ctx.html("<h1>Erreur 401 : Non autorisé</h1><p>Vous devez être connecté pour accéder à cette page.</p><p><a href='/'>Home</a></p>"));
         // Page de connexion POST
         app.post("/login", ctx -> {
             String username = ctx.formParam("username");
@@ -107,6 +116,7 @@ public class Main {
                 }
 
                 // Affichage du résultat
+                ctx.contentType("text/html; charset=UTF-8");
                 ctx.html("<pre>" + result.toString() + "</pre>" +
                         "<p><a href='/logout'>Logout</a></p>");
 
@@ -131,6 +141,7 @@ public class Main {
                 // Suppression des cookies côté client
                 ctx.cookie("username", "", 0);
 
+                ctx.contentType("text/html; charset=UTF-8");
                 ctx.html("<h1>Vous êtes maintenant déconnecté.</h1>" +
                         "<p><a href='/login'>Retour à la page de connexion</a></p>" +
                         "<p><a href='/'>Retour à la page home</a></p>");
@@ -141,7 +152,7 @@ public class Main {
 
 
         // Page pour ajouter des notes
-        app.post("/add-note", ctx -> {
+        app.post("/notes", ctx -> {
                 String username = ctx.cookie("username");
 
                 ObjectMapper mapper = new ObjectMapper();
@@ -181,7 +192,7 @@ public class Main {
 
         });
 
-        app.post("/delete-note", ctx->{
+        app.delete("/notes", ctx->{
             String username = ctx.cookie("username");
 
             ObjectMapper mapper = new ObjectMapper();
@@ -242,7 +253,7 @@ public class Main {
         });
 
         // Page pour mettre à jour une note
-        app.post("/update-note", ctx -> {
+        app.put("/notes", ctx -> {
             String username = ctx.cookie("username");
 
             ObjectMapper mapper = new ObjectMapper();
