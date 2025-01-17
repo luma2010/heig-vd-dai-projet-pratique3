@@ -42,8 +42,10 @@ public class Main {
                 ctx.html("<h1>Erreur 401 : Non autorisé</h1><p>Vous devez être connecté pour accéder à cette page.</p><p><a href='/'>Home</a></p>"));
         // Page de connexion POST
         app.post("/login", ctx -> {
+            // Récupération de nom d'utilisateur
             String username = ctx.formParam("username");
 
+            // Vérifie si l'utilisateur est vide puis vérifie si l'utilisateur est déja connecter
             if (username == null || username.isEmpty()) {
                 ctx.result("Le nom d'utilisateur ne peut pas être vide.");
                 return;
@@ -51,6 +53,8 @@ public class Main {
                 ctx.result("Vous êtes déja connecter depuis un autre apareil");
                 return;
             }
+
+            // Enregistre comme quoi l'utilisateur est connecter actuellement
             session.put(username,true);
 
             // Gestion des cookies
@@ -92,27 +96,31 @@ public class Main {
                 JsonNode notesNode = userNode.get("notes");
 
                 // Utilisation d'une Map pour regrouper les notes par branches (code venant de la documentation Jackson : https://jenkov.com/tutorials/java-json/jackson-jsonnode.html#iterate-jsonnode-fields)
-                Map<String, StringBuilder> notesParBranche = new HashMap<>();
+                Map<String, List<Double>> notesParBranche = new HashMap<>(); //Utilisation de liste de double pour facilité le calcule de moyenne
 
                 Iterator<Map.Entry<String, JsonNode>> fields = notesNode.fields();
                 while (fields.hasNext()) {
                     Map.Entry<String, JsonNode> noteEntry = fields.next();
                     JsonNode noteNode = noteEntry.getValue();
                     String branch = noteNode.get("branch").asText();
-                    String name = noteNode.get("nom").asText();
                     double note = noteNode.get("note").asDouble();
 
-                    // Rajout d'une branche si elle n'existe pas encore
-                    notesParBranche.putIfAbsent(branch, new StringBuilder());
-                    // Utilisation d'un StringBuilder pour rajouter sans devoir crée une nouvelle String
-                    notesParBranche.get(branch).append(name).append(" : ").append(note).append("\n");
+                    // Ajout de la branche si elle n'est pas encore présente
+                    notesParBranche.putIfAbsent(branch, new ArrayList<>());
+                    notesParBranche.get(branch).add(note);
                 }
 
-                // Construction de l'affichage
+                // Calcule de la moyenne en récupérant chaque note présente dans la List<Double>
                 StringBuilder result = new StringBuilder();
-                for (Map.Entry<String, StringBuilder> entry : notesParBranche.entrySet()) {
+                for (Map.Entry<String, List<Double>> entry : notesParBranche.entrySet()) {
                     result.append("Branche: ").append(entry.getKey()).append("\n");
-                    result.append(entry.getValue().toString()).append("\n");
+                    double sum = 0;
+                    for (Double note : entry.getValue()) {
+                        result.append("Note: ").append(note).append("\n");
+                        sum += note;
+                    }
+                    double average = sum / entry.getValue().size();
+                    result.append("Moyenne: ").append(average).append("\n\n");
                 }
 
                 // Affichage du résultat
@@ -130,6 +138,7 @@ public class Main {
         app.get("/logout", ctx -> {
             String username = ctx.cookie("username");
 
+            // Vérifie si on est bien connecter
             if (username == null) {
                 ctx.result("Vous n'êtes pas connecté.");
                 return;
@@ -141,7 +150,6 @@ public class Main {
                 // Suppression des cookies côté client
                 ctx.cookie("username", "", 0);
 
-                ctx.contentType("text/html; charset=UTF-8");
                 ctx.html("<h1>Vous êtes maintenant déconnecté.</h1>" +
                         "<p><a href='/login'>Retour à la page de connexion</a></p>" +
                         "<p><a href='/'>Retour à la page home</a></p>");
@@ -155,13 +163,14 @@ public class Main {
         app.post("/notes", ctx -> {
                 String username = ctx.cookie("username");
 
+                // Vérifie si on est bien connecter pour ajouter des notes
                 ObjectMapper mapper = new ObjectMapper();
                 if(!session.get(username)){
                     ctx.result("Veuillez vous connecter avant d'ajouter une note");
                     return;
                 }
 
-                // Lecture et ajout de la note dans data.json (inchangé)
+                // Lecture des notes présent dans le data.json
                 File file = new File("src/main/resources/data.json");
                 if (!file.exists()) {
                     ctx.result("Le fichier data.json est introuvable !");
@@ -192,7 +201,8 @@ public class Main {
 
         });
 
-        app.delete("/notes", ctx->{
+        // Page pour supprimer des notes
+        app.post("/delete-note", ctx->{
             String username = ctx.cookie("username");
 
             ObjectMapper mapper = new ObjectMapper();
@@ -201,6 +211,7 @@ public class Main {
                 return;
             }
 
+            // Récupere le nom et la branche de la note à supprimer
             String branch = ctx.formParam("branch");
             String noteName = ctx.formParam("nom");
 
@@ -266,6 +277,7 @@ public class Main {
             String noteName = ctx.formParam("nom");
             double newNoteValue;
 
+            // Vérifie si le paramêtre donner est bien un double
             try {
                 newNoteValue = Double.parseDouble(ctx.formParam("note"));
             } catch (NumberFormatException e) {
