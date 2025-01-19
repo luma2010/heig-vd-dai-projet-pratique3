@@ -2,7 +2,7 @@
 ### Chollet Florian - Delétraz Alexandre
 
 ## Introduction
-L'objectif de ce troisième laboratoire est de créer une application web qui utilise le protocole HTTP.  
+L'objectif de ce troisième laboratoire est de créer une application web qui utilise le protocole HTTP/HTTPS.  
 L'application sera définie par une API (application protocol interface) qui fonctionnera sur une machine virtuelle qui 
 doit faire office de serveur. L'application doit être accessible en utilisant le nom de domaine.  
 L'interaction avec notre application doit pouvoir être faite soit avec un outil de ligne de commande (comme curl), soit 
@@ -13,22 +13,18 @@ plusieurs utilisateurs.
 Il est aussi possible de faire les opérations suivantes :
 - Pour un utilisateur spécifique :
   - calculer la moyenne d'une branche
-  - calculer la moyenne générale
   - ajouter une branche dans une matière
   - supprimer une note
   - modifier une note
-- En utilisation globale :
-  - calculer la moyenne de tous les élèves d'une branche
-  - calculer la moyenne générale de tous les élèves.
 
 ## Implémentation
 Nous avons décidé de stocker les données de tous les élèves dans un seul fichier json. Ce choix nous permet de simplifier  
 notre implémentation, mais pourrait causer des problèmes de performance si le fichier devient très grand. Étant donné 
-que nous n'aurons probablement jamais assez d'élève pour ralentir une machine moderne, ce nous choix nous semble le plus 
+que nous n'aurons probablement jamais assez d'élève pour ralentir une machine moderne, ce choix nous semble le plus 
 adapter pour ce laboratoire.  
   
 Pour ce qui est des librairies que nous utilisons, pour le web, nous nous servons de javalin, car c'est la librairie que 
-nous avons vue durant les cours. 
+nous avons vue durant les cours. Nous avons égualement utiliser la librairie Jackson qui permet d'utiliser facilement des json en java
 Tout notre code est dans le fichier _Main_ du projet.  
   
 
@@ -38,12 +34,23 @@ Dans la première partie du code, la page d'accueil est créé avec un message d
 sur _ici_ permet d'accéder à la page de connexion.
 Sur cette seconde page de connexion, l'utilisateur est invité à se connecter en entrant son nom d'utilisateur. 
 Nous avons prévu d'afficher un message d'erreur au cas où quelque chose ne se passerait pas comme prévu.  
+
+Voici une liste des utilisateurs actuel :
+- Florian
+- Alexandre
+- Julien
+- Marc
+- Sophir
+- Justine
+
 À ce stade, les erreurs qui sont gérées sont :  
 - l'erreur 404, si la page n'est pas trouvé
 - l'erreur 403, si l'utilisateur n'a pas accès à la ressource demandée
 - l'erreur 500, si une erreur interne au serveur survient.  
 - l'erreur 401, au cas où l'utilisateur essaye d'accéder à une ressource sans être connecté.
-  
+
+Il est possible que d'autre erreurs se produissent, mais nous ne les avons pas rencontrer
+
 La page de connexion _POST_ est ensuite créée, cette fois-ci avec la méthode _app.post()_. Cette partie permet de récupérer
 le nom d'utilisateur, de créer un cookie et de rédiriger sur la page de note correspondante. Le cookie et la redirection 
 se font uniquement si le nom d'utilisateur existe et s'il est valide. Autrement, un massage d'erreur s'affiche à l'écran. 
