@@ -188,20 +188,20 @@ docker push nomDeImage
 ```
 
 ### Obtenir un nom de domaine
-Pour obtenir un nom de domaine, nous avons utiliser duckDNS, qui fourni un nom de domaine en se connectant simplement sur leur site.
-Une fois connecter, il suffi de donner un nom de domaine que l'on souhaite. Une fois ceci fait, duckDNS nous donnera un token qu'il faudra rentrer dans le dns-challenge.env
+Pour obtenir un nom de domaine, nous avons utilisé duckDNS, qui fourni un nom de domaine en se connectant simplement sur leur site.
+Une fois connecté, il suffit de donner un nom de domaine que l'on souhaite. Une fois ceci fait, duckDNS nous donnera un token qu'il faudra rentrer dans le dns-challenge.env
 
 ### Création de la VM
-Pour le projet, nous avons utiliser Azure et nous avons suivis le practical content ssh et scp afin de crée la VM.
+Pour le projet, nous avons utilisé Azure et nous avons suivi le practical content ssh et scp afin de créer la VM.
 
 ### Docker-compose
 
-Afin de crée un site web fonctionnel avec notre code, il suffit de faire 3 fichier :
-- docker-compose.yaml : va crée les 2 containers (traefik et l'application) avec les options du fichier
-- .env : permet de faire un fichier "générique" du .yaml puis de spécifier ce que l'on souhaite dans le .env (exemple, quel image on veut utilisé)
+Afin de créer un site web fonctionnel avec notre code, il suffit de faire 3 fichiers :
+- docker-compose.yaml : va créer les 2 containers (traefik et l'application) avec les options du fichier
+- .env : permet de faire un fichier "générique" du .yaml puis de spécifier ce que l'on souhaite dans le .env (exemple, quelle image on veut utiliser)
 - dns-challenge.env : permet de spécifier comment traefik va utiliser le nom de domaine (en fonction du fourniseur DNS, ce fichier changera)
 
-Ces trois fichier sont présent dans le git, il suffis juste de faire la commande suivante sur la VM afin de lancer le programme :
+Ces trois fichiers sont présents dans le git, il suffit juste de faire la commande suivante sur la VM afin de lancer le programme :
 ```
 docker-compose up
 ```
