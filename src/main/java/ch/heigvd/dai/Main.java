@@ -17,12 +17,14 @@ public class Main {
 
         // Page d'accueil
         app.get("/", ctx -> {
+            ctx.contentType("text/html; charset=utf-8");
             ctx.html("<h1>Bienvenue sur le projet pratique 3 de DAI !</h1>" +
                     "<p>Cliquez <a href='/notes'>ici</a> pour voir les notes.</p>");
         });
 
         // Page de connexion GET
         app.get("/login", ctx -> {
+            ctx.contentType("text/html; charset=utf-8");
             ctx.html("<h1>Page de Connexion</h1>" +
                     "<form action='/login' method='POST'>" +
                     "<label for='username'>Nom d'utilisateur :</label><br>" +
@@ -32,24 +34,41 @@ public class Main {
         });
 
         // Page erreur 404
-        app.error(404,ctx ->
-                ctx.html("<h1>Erreur 404 : Page non trouvée</h1><p>La page que vous avez demandée n'existe pas.</p><p><a href='/'>Home</a></p>"));
+        app.error(404,ctx ->{
+                    ctx.contentType("text/html; charset=utf-8");
+                    ctx.html("<h1>Erreur 404 : Page non trouvée</h1><p>La page que vous avez demandée n'existe pas.</p><p><a href='/'>Home</a></p>");
 
-        app.error(403, ctx ->
-                ctx.html("<h1>Erreur 403 : Accès interdit</h1><p>Vous n'avez pas la permission d'accéder à cette page.</p><p><a href='/'>Home</a></p>"));
+                });
 
-        app.error(401,ctx ->
-                ctx.html("<h1>Erreur 401 : Non autorisé</h1><p>Vous devez être connecté pour accéder à cette page.</p><p><a href='/'>Home</a></p>"));
+        app.error(403, ctx ->{
+                    ctx.contentType("text/html; charset=utf-8");
+                    ctx.html("<h1>Erreur 403 : Accès interdit</h1><p>Vous n'avez pas la permission d'accéder à cette page.</p><p><a href='/'>Home</a></p>");
+
+                });
+
+        app.error(500, ctx -> {
+            ctx.contentType("text/html; charset=utf-8");
+            ctx.html("<h1>Erreur 500 : Erreur interne du serveur</h1>" +
+                    "<p>Une erreur inattendue s'est produite sur le serveur.</p>" +
+                    "<p>Nous nous excusons pour la gêne occasionnée.</p>" +
+                    "<p><a href='/'>Retour à la page d'accueil</a></p>");
+        });
+
+        app.error(401,ctx ->{
+                    ctx.contentType("text/html; charset=utf-8");
+            ctx.html("<h1>Erreur 401 : Non autorisé</h1><p>Vous devez être connecté pour accéder à cette page.</p><p><a href='/'>Home</a></p>");
+                });
         // Page de connexion POST
         app.post("/login", ctx -> {
+            ctx.contentType("text/html; charset=utf-8");
+
             // Récupération de nom d'utilisateur
             String username = ctx.formParam("username");
-
             // Vérifie si l'utilisateur est vide puis vérifie si l'utilisateur est déja connecter
             if (username == null || username.isEmpty()) {
                 ctx.result("Le nom d'utilisateur ne peut pas être vide.");
                 return;
-            }else if(!session.isEmpty() && session.get(username)){
+            }else if(!session.isEmpty() && session.containsKey(username) && session.get(username)){
                 ctx.result("Vous êtes déja connecter depuis un autre apareil");
                 return;
             }
@@ -66,6 +85,8 @@ public class Main {
 
         // Page d'affichage de note
         app.get("/notes", ctx -> {
+            ctx.contentType("text/html; charset=utf-8");
+
             // Récupération du cookie
             String username = ctx.cookie("username");
 
@@ -97,17 +118,23 @@ public class Main {
 
                 // Utilisation d'une Map pour regrouper les notes par branches (code venant de la documentation Jackson : https://jenkov.com/tutorials/java-json/jackson-jsonnode.html#iterate-jsonnode-fields)
                 Map<String, List<Double>> notesParBranche = new HashMap<>(); //Utilisation de liste de double pour facilité le calcule de moyenne
+                Map<String, List<String>> affichageParBranche = new HashMap<>(); //Utilisation pour afficher le nom des tests (a voir comment optimiser)
 
                 Iterator<Map.Entry<String, JsonNode>> fields = notesNode.fields();
                 while (fields.hasNext()) {
                     Map.Entry<String, JsonNode> noteEntry = fields.next();
                     JsonNode noteNode = noteEntry.getValue();
                     String branch = noteNode.get("branch").asText();
+                    String testName = noteNode.get("nom").asText();
                     double note = noteNode.get("note").asDouble();
 
                     // Ajout de la branche si elle n'est pas encore présente
                     notesParBranche.putIfAbsent(branch, new ArrayList<>());
+                    affichageParBranche.putIfAbsent(branch, new ArrayList<>());
+
                     notesParBranche.get(branch).add(note);
+                    affichageParBranche.get(branch).add(testName + ": " + note);
+
                 }
 
                 // Calcule de la moyenne en récupérant chaque note présente dans la List<Double>
@@ -115,9 +142,12 @@ public class Main {
                 for (Map.Entry<String, List<Double>> entry : notesParBranche.entrySet()) {
                     result.append("Branche: ").append(entry.getKey()).append("\n");
                     double sum = 0;
+                    ArrayList<String> affichage = new ArrayList<>(affichageParBranche.get(entry.getKey()));
+                    int index = 0;
                     for (Double note : entry.getValue()) {
-                        result.append("Note: ").append(note).append("\n");
+                        result.append(affichage.get(index)).append("\n");
                         sum += note;
+                        index++;
                     }
                     double average = sum / entry.getValue().size();
                     result.append("Moyenne: ").append(average).append("\n\n");
@@ -136,6 +166,8 @@ public class Main {
 
         // Page pour logout
         app.get("/logout", ctx -> {
+            ctx.contentType("text/html; charset=utf-8");
+
             String username = ctx.cookie("username");
 
             // Vérifie si on est bien connecter
@@ -155,6 +187,7 @@ public class Main {
                         "<p><a href='/'>Retour à la page home</a></p>");
             } else {
                 ctx.result("Aucune session trouvée pour cet utilisateur.");
+                ctx.status(500);
             }
         });
 
@@ -202,7 +235,7 @@ public class Main {
         });
 
         // Page pour supprimer des notes
-        app.post("/delete-note", ctx->{
+        app.delete("/notes", ctx->{
             String username = ctx.cookie("username");
 
             ObjectMapper mapper = new ObjectMapper();
