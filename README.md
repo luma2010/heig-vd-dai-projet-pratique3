@@ -109,7 +109,8 @@ java -jar target/heig-vd-dai-projet-pratique3.jar
 ```  
 
 ### Docker
-Afin de faire fonctionner le projet sur docker, il vous faudra suivre les étapes qui suivent.
+Afin de faire fonctionner le projet sur docker, il vous faudra suivre les étapes du docker file qui se trouve dans 
+le _main_.
 Premièrement, vous allez devoir créer le docker avec la commande ci-après :  
 
 ```text
