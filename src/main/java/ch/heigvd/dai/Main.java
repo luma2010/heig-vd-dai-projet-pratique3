@@ -98,7 +98,7 @@ public class Main {
 
             // Création d'un ObjectMapper pour lire le JSON (Jackson)
             ObjectMapper mapper = new ObjectMapper();
-            File file = new File("src/main/resources/data.json");
+            File file = new File("/app/data.json");
 
             if (!file.exists()) {
                 ctx.result("Le fichier data.json est introuvable !");
@@ -204,7 +204,7 @@ public class Main {
                 }
 
                 // Lecture des notes présent dans le data.json
-                File file = new File("src/main/resources/data.json");
+                File file = new File("/app/data.json");
                 if (!file.exists()) {
                     ctx.result("Le fichier data.json est introuvable !");
                     return;
@@ -227,7 +227,7 @@ public class Main {
                 newNote.put("note", Double.parseDouble(ctx.formParam("note")));
                 ((ObjectNode) notesNode).set(noteKey, newNote);
 
-                FileOutputStream fos = new FileOutputStream("src/main/resources/data.json");
+                FileOutputStream fos = new FileOutputStream("/app/data.json");
                 mapper.writerWithDefaultPrettyPrinter().writeValue(fos, rootNode);
 
                 ctx.result("Note ajoutée avec succès !");
@@ -248,7 +248,7 @@ public class Main {
             String branch = ctx.formParam("branch");
             String noteName = ctx.formParam("nom");
 
-            File file = new File("src/main/resources/data.json");
+            File file = new File("/app/data.json");
             if (!file.exists()) {
                 ctx.result("Le fichier data.json est introuvable !");
                 return;
@@ -290,7 +290,7 @@ public class Main {
             ((ObjectNode) notesNode).remove(noteKeyToRemove);
 
             // Sauvegarder les changements dans le fichier data.json
-            FileOutputStream fos = new FileOutputStream("src/main/resources/data.json");
+            FileOutputStream fos = new FileOutputStream("/app/data.json");
             mapper.writerWithDefaultPrettyPrinter().writeValue(fos, rootNode);
 
             ctx.result("Note supprimée avec succès !");
@@ -318,7 +318,7 @@ public class Main {
                 return;
             }
 
-            File file = new File("src/main/resources/data.json");
+            File file = new File("/app/data.json");
             if (!file.exists()) {
                 ctx.result("Le fichier data.json est introuvable !");
                 return;

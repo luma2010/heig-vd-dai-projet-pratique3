@@ -1,75 +1,41 @@
 {
   "Florian" : {
     "notes" : {
-      "note1" : {
-        "branch" : "ASD",
-        "nom" : "Test1",
-        "id" : 0,
-        "note" : 5
-      },
-      "note2" : {
-        "branch" : "ASD",
-        "nom" : "Test2",
-        "id" : 1,
-        "note" : 4.5
-      },
-      "note4" : {
-        "branch" : "PRG1",
-        "nom" : "Test2",
-        "id" : 1,
-        "note" : 4.5
-      },
-      "note5" : {
-        "branch" : "PRG2",
-        "nom" : "Test2",
-        "id" : 1,
-        "note" : 4.5
-      },
-      "note6" : {
-        "branch" : "ASD",
-        "nom" : "Test3",
-        "id" : 5,
-        "note" : 4.0
-      },
-      "note7" : {
-        "branch" : "PRG3",
-        "nom" : "Test5",
-        "id" : 6,
-        "note" : 3.0
-      },
-      "note8" : {
-        "branch" : "PRG4",
-        "nom" : "Test3",
-        "id" : 7,
-        "note" : 3.0
-      },
-      "note9" : {
-        "branch" : "ASD2",
-        "nom" : "Test3",
-        "id" : 8,
-        "note" : 5.0
-      },
-      "note10" : {
-        "branch" : "MAT3",
-        "nom" : "Test1",
-        "id" : 9,
-        "note" : 6.0
-      },
       "note_e2b1a3ca-9250-4c9d-88e1-2e997029aad7" : {
         "branch" : "PRG1",
         "nom" : "Test6",
         "note" : 5.0
+      },
+      "note_7dd4bd98-09fb-4bb9-8bc1-80f4dc750cbf" : {
+        "branch" : "PRG7",
+        "nom" : "Test3",
+        "note" : 1.5
       }
     }
   },
   "Alexandre" : {
     "notes" : {
-      "note1" : {
-        "branch" : "ASD2",
-        "nom" : "Test3",
-        "id" : 0,
-        "note" : 3.0
-      }
+
+    }
+  },
+  "Julien" : {
+    "notes" : {
+
+    }
+  },
+  "Marc" : {
+    "notes" : {
+
+    }
+  },
+  "Sophie" : {
+    "notes" : {
+
+    }
+  },
+  "Justine" : {
+    "notes" : {
+
     }
   }
 }
