@@ -208,3 +208,16 @@ docker-compose up
 
 
 ## Conclusion
+Ce travail nous a permis de pratiquer le développement d'une application web simple, ce qui nous a permis de mieux nous 
+rendre compte de tous les détails qu'il ne faut pas omettre lors de la création d'une API. Que ce soit, l'authentification 
+d'un utilisateur, la création d'une session, la concurrence, la gestion des requêtes, rien ne doit être laissé au hasard.  
+Nous n'avons pas fait d'interface graphique avec du CSS, car nous n'avions pas le temps d'acquérir les connaissances pour 
+faire quelque chose d'esthétique.  
+Si un jour, nous reprenons ce projet, les améliorations que nous pourrions apporter sont : 
+- une interface plus agréable
+- la possibilité d'avoir la moyenne de l'année sur la page web
+- pouvoir ajouter des notes directement depuis l'interface web
+- et encore beaucoup d'autre
+
+Nous sommes toutefois assez satisfait du résultat de ce projet.  
+Nous vous remercions pour votre enseignement durant ce semestre et vous souhaitons une excellente continuation.
