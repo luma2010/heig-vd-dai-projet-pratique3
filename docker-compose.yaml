@@ -65,5 +65,5 @@ services:
 
       - traefik.http.routers.mon_app.entrypoints=https
       - traefik.http.routers.mon_app.rule=Host(`app.${TRAEFIK_ROOT_FULLY_QUALIFIED_DOMAIN_NAME}`)
-      - traefik.http.services.mon_app.loadbalancer.server.port=8080 # Port exposé par ton application
+      - traefik.http.services.mon_app.loadbalancer.server.port=5000 # Port exposé par ton application
 
