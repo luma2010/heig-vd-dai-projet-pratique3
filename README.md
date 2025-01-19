@@ -87,7 +87,62 @@ ce qui n'est pas le cas avec un _StringBuilder).
   
 Ensuite, le résultat de la création de l'affichage est affiché avec la ligne _ctx.result(result.toString());_.
 
-## Récupération du projet en local et utilisation de docker
+## Utilisation du projet
+Afin d'utiliser correctement le projet, il faudra en premier se connecter sur la page web suivante :
+https://app.projetdai3florian.duckdns.org/
+
+Une fois là-bas, nous pouvons nous connecter avec un user (par exemple Florian), puis voir les notes ou la moyenne d'une branche.
+
+Il est égualement possible de faire cela avec curl :
+
+Pour se log :
+```
+curl -X POST https://app.projetdai3florian.duckdns.org/login \
+-d "username=<nomUser>"
+```
+
+
+Pour se delog :
+```
+curl -X GET https://app.projetdai3florian.duckdns.org/logout \
+--cookie username=<nomUser>
+
+```
+Pour toutes les prochaines commandes, il faudra être connecter (sinon, vous recevrez un message d'erreur)
+
+Pour voir les notes :
+```
+curl -X GET https://app.projetdai3florian.duckdns.org/notes \
+--cookie username=<nomUser>
+```
+
+Pour ajouter une note :
+```
+curl -X POST https://app.projetdai3florian.duckdns.org/notes \
+--cookie username=<nomUser> \
+-d "branch=<nomBranch>" \
+-d "nom=<nomTest>" \
+-d "note=<valeurNote>"
+```
+
+Pour supprimer une note :
+```
+curl -X DELETE https://app.projetdai3florian.duckdns.org/notes \
+--cookie username=Alexandre \
+-d "branch=<nomBranch>" \
+-d "nom=<nomTest>"
+```
+
+Pour modifier une note :
+```
+curl -X PUT https://app.projetdai3florian.duckdns.org/notes \
+--cookie username=Alexandre \
+-d "branch=<nomBranch>" \
+-d "nom=<nomTest>" \
+-d "note=<valeurNote>"
+```
+
+## Récupération du projet en local et configuration pour internet
 
 ### Récupération du projet
 Afin de récupérer le projet depuis gitHub, il faut se rendre sur notre repo git à l'adresse suivante :  
@@ -123,6 +178,25 @@ Ensuite, avec la commande suivante :
 
 ```text
 docker push nomDeImage
+```
+
+### Obtenir un nom de domaine
+Pour obtenir un nom de domaine, nous avons utiliser duckDNS, qui fourni un nom de domaine en se connectant simplement sur leur site.
+Une fois connecter, il suffi de donner un nom de domaine que l'on souhaite. Une fois ceci fait, duckDNS nous donnera un token qu'il faudra rentrer dans le dns-challenge.env
+
+### Création de la VM
+Pour le projet, nous avons utiliser Azure et nous avons suivis le practical content ssh et scp afin de crée la VM.
+
+### Docker-compose
+
+Afin de crée un site web fonctionnel avec notre code, il suffit de faire 3 fichier :
+- docker-compose.yaml : va crée les 2 containers (traefik et l'application) avec les options du fichier
+- .env : permet de faire un fichier "générique" du .yaml puis de spécifier ce que l'on souhaite dans le .env (exemple, quel image on veut utilisé)
+- dns-challenge.env : permet de spécifier comment traefik va utiliser le nom de domaine (en fonction du fourniseur DNS, ce fichier changera)
+
+Ces trois fichier sont présent dans le git, il suffis juste de faire la commande suivante sur la VM afin de lancer le programme :
+```
+docker-compose up
 ```
 
 
